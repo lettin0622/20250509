@@ -6,6 +6,8 @@ let handPose;
 let hands = [];
 let circleX, circleY; // 圓的初始位置
 let circleRadius = 50; // 圓的半徑
+let isDrawing = false; // 是否正在畫軌跡
+let trailColor; // 軌跡顏色
 
 function preload() {
   // Initialize HandPose model with flipped video input
@@ -43,6 +45,8 @@ function draw() {
 
   // 確保至少檢測到一隻手
   if (hands.length > 0) {
+    let isHandTouching = false; // 檢查是否有手指夾住圓
+
     for (let hand of hands) {
       if (hand.confidence > 0.1) {
         // 獲取食指與大拇指的座標
@@ -57,6 +61,16 @@ function draw() {
           // 如果兩者同時碰觸到，讓圓跟隨手指移動
           circleX = (indexFinger.x + thumb.x) / 2;
           circleY = (indexFinger.y + thumb.y) / 2;
+
+          // 設置軌跡顏色
+          if (hand.handedness === "Right") {
+            trailColor = color(255, 0, 0); // 紅色
+          } else if (hand.handedness === "Left") {
+            trailColor = color(0, 255, 0); // 綠色
+          }
+
+          isDrawing = true; // 開始畫軌跡
+          isHandTouching = true;
         }
 
         // 繪製手部關鍵點
@@ -129,5 +143,20 @@ function draw() {
         }
       }
     }
+
+    // 如果沒有手指夾住圓，停止畫軌跡
+    if (!isHandTouching) {
+      isDrawing = false;
+    }
+  } else {
+    // 如果沒有檢測到手，停止畫軌跡
+    isDrawing = false;
+  }
+
+  // 畫出軌跡
+  if (isDrawing) {
+    stroke(trailColor);
+    strokeWeight(2);
+    point(circleX, circleY);
   }
 }
