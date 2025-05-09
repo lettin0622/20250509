@@ -8,6 +8,7 @@ let circleX, circleY; // 圓的初始位置
 let circleRadius = 50; // 圓的半徑
 let isDrawing = false; // 是否正在畫軌跡
 let trailColor; // 軌跡顏色
+let trails = []; // 用於儲存所有的軌跡
 
 function preload() {
   // Initialize HandPose model with flipped video input
@@ -37,6 +38,13 @@ function setup() {
 
 function draw() {
   image(video, 0, 0);
+
+  // 畫出所有的軌跡
+  for (let trail of trails) {
+    stroke(trail.color);
+    strokeWeight(20);
+    point(trail.x, trail.y);
+  }
 
   // 畫出圓
   fill(0, 0, 255, 150); // 半透明藍色
@@ -71,75 +79,9 @@ function draw() {
 
           isDrawing = true; // 開始畫軌跡
           isHandTouching = true;
-        }
 
-        // 繪製手部關鍵點
-        for (let i = 0; i < hand.keypoints.length; i++) {
-          let keypoint = hand.keypoints[i];
-
-          // 根據左右手設置顏色
-          if (hand.handedness == "Left") {
-            fill(255, 0, 255);
-          } else {
-            fill(255, 255, 0);
-          }
-
-          noStroke();
-          circle(keypoint.x, keypoint.y, 16);
-        }
-
-        // 繪製手部骨架
-        stroke(0, 255, 0);
-        strokeWeight(2);
-
-        // Connect keypoints 0-4
-        for (let i = 0; i < 4; i++) {
-          line(
-            hand.keypoints[i].x,
-            hand.keypoints[i].y,
-            hand.keypoints[i + 1].x,
-            hand.keypoints[i + 1].y
-          );
-        }
-
-        // Connect keypoints 5-8
-        for (let i = 5; i < 8; i++) {
-          line(
-            hand.keypoints[i].x,
-            hand.keypoints[i].y,
-            hand.keypoints[i + 1].x,
-            hand.keypoints[i + 1].y
-          );
-        }
-
-        // Connect keypoints 9-12
-        for (let i = 9; i < 12; i++) {
-          line(
-            hand.keypoints[i].x,
-            hand.keypoints[i].y,
-            hand.keypoints[i + 1].x,
-            hand.keypoints[i + 1].y
-          );
-        }
-
-        // Connect keypoints 13-16
-        for (let i = 13; i < 16; i++) {
-          line(
-            hand.keypoints[i].x,
-            hand.keypoints[i].y,
-            hand.keypoints[i + 1].x,
-            hand.keypoints[i + 1].y
-          );
-        }
-
-        // Connect keypoints 17-20
-        for (let i = 17; i < 20; i++) {
-          line(
-            hand.keypoints[i].x,
-            hand.keypoints[i].y,
-            hand.keypoints[i + 1].x,
-            hand.keypoints[i + 1].y
-          );
+          // 儲存當前圓心位置到軌跡
+          trails.push({ x: circleX, y: circleY, color: trailColor });
         }
       }
     }
@@ -151,12 +93,5 @@ function draw() {
   } else {
     // 如果沒有檢測到手，停止畫軌跡
     isDrawing = false;
-  }
-
-  // 畫出軌跡
-  if (isDrawing) {
-    stroke(trailColor);
-    strokeWeight(2);
-    point(circleX, circleY);
   }
 }
